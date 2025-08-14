@@ -25,9 +25,35 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToSignup }) => {
       } else {
         await signin(email, password);
       }
+      
+      // Clear form data
+      setEmail('');
+      setPassword('');
+      setDisplayName('');
+      setError('');
+      
+      // Close modal
       onClose();
     } catch (error) {
-      setError(error.message);
+      console.error('Auth error:', error);
+      // Handle Firebase auth errors more gracefully
+      let errorMessage = 'Authentication failed. Please try again.';
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email. Please sign up.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password. Please try again.';
+      } else if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'An account with this email already exists. Please sign in.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password should be at least 6 characters long.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

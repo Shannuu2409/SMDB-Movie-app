@@ -10,6 +10,7 @@ export const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editDisplayName, setEditDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (userProfile) {
@@ -22,6 +23,7 @@ export const ProfilePage = () => {
       await signout();
     } catch (error) {
       console.error('Error signing out:', error);
+      setError('Failed to sign out. Please try again.');
     }
   };
 
@@ -29,11 +31,13 @@ export const ProfilePage = () => {
     if (!editDisplayName.trim()) return;
     
     setLoading(true);
+    setError(null);
     try {
       await updateUserProfile({ displayName: editDisplayName.trim() });
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating profile:', error);
+      setError('Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -42,12 +46,24 @@ export const ProfilePage = () => {
   const handleCancelEdit = () => {
     setEditDisplayName(userProfile?.displayName || '');
     setIsEditing(false);
+    setError(null);
   };
 
-  if (!currentUser || !userProfile) {
+  if (!currentUser) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading profile...</div>
+        <div className="text-white text-xl">Please sign in to view your profile.</div>
+      </div>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-white text-xl mb-4">Loading profile...</div>
+          <div className="text-gray-400">This may take a moment if the backend is starting up.</div>
+        </div>
       </div>
     );
   }
@@ -68,6 +84,13 @@ export const ProfilePage = () => {
               Sign Out
             </Button>
           </div>
+
+          {/* Error Display */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-900/20 border border-red-600/30 rounded-lg">
+              <div className="text-red-400 text-sm">{error}</div>
+            </div>
+          )}
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* User Info */}
@@ -153,6 +176,14 @@ export const ProfilePage = () => {
         {/* Watchlist Section */}
         <div className="bg-gray-900 rounded-lg p-8 border border-gray-700">
           <h2 className="text-2xl font-bold text-white mb-6">My Watchlist</h2>
+          
+          {/* Backend Status Message */}
+          <div className="mb-6 p-4 bg-blue-900/20 border border-blue-600/30 rounded-lg">
+            <div className="text-blue-400 text-sm">
+              <strong>Note:</strong> Your watchlist requires the backend server to be running. 
+              If you're seeing loading issues, make sure your MongoDB backend is deployed and accessible.
+            </div>
+          </div>
           
           {userProfile.watchlist && userProfile.watchlist.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
