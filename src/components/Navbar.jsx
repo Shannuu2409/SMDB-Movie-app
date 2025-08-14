@@ -1,34 +1,39 @@
 import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { SearchBar } from "./SearchBar";
 import { Button } from "@/components/ui/button";
 import { Menu, User, Home, Film, Tv, Heart, Zap, LogOut, Bookmark } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { LoginModal } from "./auth/LoginModal";
 
-export const Navbar = ({ onSearch, onNavigate }) => {
+export const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("home");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   
+  const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser, userProfile, signout } = useAuth();
 
   const handleSearchChange = (value) => {
     setSearchQuery(value);
-    onSearch(value);
+    // Navigate to home with search query
+    if (value.trim()) {
+      navigate(`/?search=${encodeURIComponent(value)}`);
+    } else {
+      navigate('/');
+    }
   };
 
-  const handleNavigation = (tab) => {
-    setActiveTab(tab);
-    onNavigate?.(tab);
+  const handleNavigation = (path) => {
+    navigate(path);
     setShowProfileMenu(false);
-    // TODO: Implement actual navigation between different views
-    console.log("Navigating to:", tab);
+    console.log("Navigating to:", path);
   };
 
   const handleProfileClick = () => {
     if (currentUser) {
-      handleNavigation('profile');
+      setShowProfileMenu(!showProfileMenu);
     } else {
       setShowLoginModal(true);
     }
@@ -38,11 +43,24 @@ export const Navbar = ({ onSearch, onNavigate }) => {
     try {
       await signout();
       setShowProfileMenu(false);
-      handleNavigation('home');
+      navigate('/');
     } catch (error) {
       console.error("Error signing out:", error);
     }
   };
+
+  // Get current active tab from location
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path === '/') return 'home';
+    if (path === '/movies') return 'movies';
+    if (path === '/tv-series') return 'tv';
+    if (path === '/anime') return 'anime';
+    if (path === '/profile') return 'profile';
+    return 'home';
+  };
+
+  const activeTab = getActiveTab();
 
   return (
     <>
@@ -50,7 +68,10 @@ export const Navbar = ({ onSearch, onNavigate }) => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-8">
-              <h1 className="text-2xl font-bold text-white cursor-pointer hover:text-red-500 transition-colors font-montserrat">
+              <h1 
+                className="text-2xl font-bold text-white cursor-pointer hover:text-red-500 transition-colors font-montserrat"
+                onClick={() => handleNavigation('/')}
+              >
                 SMDB .
               </h1>
               
@@ -58,7 +79,7 @@ export const Navbar = ({ onSearch, onNavigate }) => {
                 <Button 
                   variant="ghost" 
                   className={`text-white hover:text-red-500 transition-colors ${activeTab === 'home' ? 'text-red-500' : ''}`}
-                  onClick={() => handleNavigation('home')}
+                  onClick={() => handleNavigation('/')}
                 >
                   <Home className="w-4 h-4 mr-2" />
                   Home
@@ -66,7 +87,7 @@ export const Navbar = ({ onSearch, onNavigate }) => {
                 <Button 
                   variant="ghost" 
                   className={`text-white hover:text-red-500 transition-colors ${activeTab === 'movies' ? 'text-red-500' : ''}`}
-                  onClick={() => handleNavigation('movies')}
+                  onClick={() => handleNavigation('/movies')}
                 >
                   <Film className="w-4 h-4 mr-2" />
                   Movies
@@ -74,7 +95,7 @@ export const Navbar = ({ onSearch, onNavigate }) => {
                 <Button 
                   variant="ghost" 
                   className={`text-white hover:text-red-500 transition-colors ${activeTab === 'tv' ? 'text-red-500' : ''}`}
-                  onClick={() => handleNavigation('tv')}
+                  onClick={() => handleNavigation('/tv-series')}
                 >
                   <Tv className="w-4 h-4 mr-2" />
                   TV Shows
@@ -82,7 +103,7 @@ export const Navbar = ({ onSearch, onNavigate }) => {
                 <Button 
                   variant="ghost" 
                   className={`text-white hover:text-red-500 transition-colors ${activeTab === 'anime' ? 'text-red-500' : ''}`}
-                  onClick={() => handleNavigation('anime')}
+                  onClick={() => handleNavigation('/anime')}
                 >
                   <Zap className="w-4 h-4 mr-2" />
                   Anime
@@ -91,7 +112,7 @@ export const Navbar = ({ onSearch, onNavigate }) => {
                   <Button 
                     variant="ghost" 
                     className={`text-white hover:text-red-500 transition-colors ${activeTab === 'profile' ? 'text-red-500' : ''}`}
-                    onClick={() => handleNavigation('profile')}
+                    onClick={() => handleNavigation('/profile')}
                   >
                     <Bookmark className="w-4 h-4 mr-2" />
                     My List
@@ -140,14 +161,14 @@ export const Navbar = ({ onSearch, onNavigate }) => {
                     
                     <div className="py-2">
                       <button
-                        onClick={() => handleNavigation('profile')}
+                        onClick={() => handleNavigation('/profile')}
                         className="w-full text-left px-4 py-2 text-white hover:bg-gray-800 transition-colors flex items-center"
                       >
                         <User className="w-4 h-4 mr-2" />
                         Profile
                       </button>
                       <button
-                        onClick={() => handleNavigation('profile')}
+                        onClick={() => handleNavigation('/profile')}
                         className="w-full text-left px-4 py-2 text-white hover:bg-gray-800 transition-colors flex items-center"
                       >
                         <Bookmark className="w-4 h-4 mr-2" />
