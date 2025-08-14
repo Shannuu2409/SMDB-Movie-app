@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+@import "./styles/tokens.css";
+
+/* Additional global styles for consistent white text */
+* {
+  color: white;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: white;
+  background-color: black;
+}
+
+/* Custom bounce animation for cards */
+@keyframes card-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1.05);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+.animate-card-bounce {
+  animation: card-bounce 0.6s ease-in-out;
+}
