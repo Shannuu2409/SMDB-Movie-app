@@ -126,6 +126,19 @@ export const AuthProvider = ({ children }) => {
 
   // Listen for auth state changes
   useEffect(() => {
+    // Test backend connection on app load
+    const testBackend = async () => {
+      try {
+        console.log('🔍 Testing backend connection on app load...');
+        await mongoService.testConnection();
+        console.log('✅ Backend is reachable!');
+      } catch (error) {
+        console.error('❌ Backend is not reachable:', error);
+      }
+    };
+    
+    testBackend();
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       
