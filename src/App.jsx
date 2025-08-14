@@ -6,14 +6,12 @@ import TVSeriesPage from "./pages/TVSeriesPage";
 import AnimePage from "./pages/AnimePage";
 import { ProfilePage } from "./components/ProfilePage";
 import { AuthProvider } from "./contexts/AuthContext";
-import BackendTest from "./components/BackendTest";
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <div className="App">
-          <BackendTest />
           <Navbar />
           <Routes>
             <Route path="/" element={<Index />} />
