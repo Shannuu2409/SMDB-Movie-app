@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
-import { Index } from "./Index";
+import Index from "./Index";
 import { MoviesPage } from "./pages/MoviesPage";
 import { TVSeriesPage } from "./pages/TVSeriesPage";
 import { AnimePage } from "./pages/AnimePage";
