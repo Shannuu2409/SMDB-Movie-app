@@ -27,25 +27,43 @@ export const AuthProvider = ({ children }) => {
   // Sign up function
   const signup = async (email, password, displayName) => {
     try {
+      console.log('🔍 Starting signup process...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('✅ Firebase user created successfully');
       
       // Update Firebase profile
       await updateProfile(userCredential.user, { displayName });
+      console.log('✅ Firebase profile updated');
       
-      // Create user in MongoDB
-      const userData = {
-        uid: userCredential.user.uid,
-        email: userCredential.user.email,
-        displayName: displayName,
-        createdAt: new Date().toISOString(),
-        watchlist: []
-      };
-      
-      await mongoService.createUser(userData);
+      try {
+        // Create user in MongoDB
+        console.log('🔍 Creating user in MongoDB...');
+        const userData = {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          displayName: displayName,
+          createdAt: new Date().toISOString(),
+          watchlist: []
+        };
+        
+        await mongoService.createUser(userData);
+        console.log('✅ User created in MongoDB successfully');
+        setUserProfile(userData);
+      } catch (mongoError) {
+        console.error('❌ Failed to create user in MongoDB:', mongoError);
+        // Don't throw error - user can still use the app
+        // Just set a basic profile
+        setUserProfile({
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          displayName: displayName,
+          watchlist: []
+        });
+      }
       
       return userCredential.user;
     } catch (error) {
-      console.error('Error during signup:', error);
+      console.error('❌ Error during signup:', error);
       throw error;
     }
   };
@@ -53,15 +71,46 @@ export const AuthProvider = ({ children }) => {
   // Sign in function
   const signin = async (email, password) => {
     try {
+      console.log('🔍 Starting signin process...');
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('✅ Firebase authentication successful');
       
-      // Fetch user profile from MongoDB
-      const profile = await mongoService.getUser(userCredential.user.uid);
-      setUserProfile(profile);
+      try {
+        // Try to fetch user profile from MongoDB
+        console.log('🔍 Fetching user profile from MongoDB...');
+        const profile = await mongoService.getUser(userCredential.user.uid);
+        console.log('✅ User profile fetched successfully');
+        setUserProfile(profile);
+      } catch (profileError) {
+        console.log('⚠️ User profile not found in MongoDB, creating new profile...', profileError.message);
+        // If user doesn't exist in MongoDB, create them
+        try {
+          const userData = {
+            uid: userCredential.user.uid,
+            email: userCredential.user.email,
+            displayName: userCredential.user.displayName || 'User',
+            createdAt: new Date().toISOString(),
+            watchlist: []
+          };
+          await mongoService.createUser(userData);
+          console.log('✅ New user profile created in MongoDB');
+          setUserProfile(userData);
+        } catch (createError) {
+          console.error('❌ Failed to create user profile:', createError);
+          // Don't throw error - user can still use the app
+          // Just set a basic profile
+          setUserProfile({
+            uid: userCredential.user.uid,
+            email: userCredential.user.email,
+            displayName: userCredential.user.displayName || 'User',
+            watchlist: []
+          });
+        }
+      }
       
       return userCredential.user;
     } catch (error) {
-      console.error('Error during signin:', error);
+      console.error('❌ Error during signin:', error);
       throw error;
     }
   };

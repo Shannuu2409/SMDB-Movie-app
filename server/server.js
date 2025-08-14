@@ -15,13 +15,30 @@ app.use(express.json());
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/smdb';
+console.log('🔍 Attempting to connect to MongoDB...');
+console.log('🔍 MongoDB URI present:', !!process.env.MONGODB_URI);
+
 mongoose.connect(MONGODB_URI)
   .then(() => {
-    console.log('Connected to MongoDB');
+    console.log('✅ Connected to MongoDB successfully');
   })
   .catch((error) => {
-    console.error('MongoDB connection error:', error);
+    console.error('❌ MongoDB connection error:', error);
+    console.error('❌ Error details:', error.message);
   });
+
+// Add connection event listeners
+mongoose.connection.on('error', (error) => {
+  console.error('❌ MongoDB connection error event:', error);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️ MongoDB disconnected');
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('✅ MongoDB connected');
+});
 
 // Routes
 app.use('/api/users', userRoutes);

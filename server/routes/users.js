@@ -6,11 +6,13 @@ const router = express.Router();
 // Create a new user
 router.post('/', async (req, res) => {
   try {
+    console.log('🔍 Creating user with data:', req.body);
     const { uid, email, displayName } = req.body;
     
     // Check if user already exists
     const existingUser = await User.findOne({ uid });
     if (existingUser) {
+      console.log('⚠️ User already exists:', uid);
       return res.status(409).json({ error: 'User already exists' });
     }
 
@@ -21,11 +23,14 @@ router.post('/', async (req, res) => {
       watchlist: []
     });
 
+    console.log('🔍 Saving user to database...');
     const savedUser = await user.save();
+    console.log('✅ User created successfully:', savedUser._id);
     res.status(201).json(savedUser);
   } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({ error: 'Failed to create user' });
+    console.error('❌ Error creating user:', error);
+    console.error('❌ Error stack:', error.stack);
+    res.status(500).json({ error: 'Failed to create user', details: error.message });
   }
 });
 
@@ -33,16 +38,21 @@ router.post('/', async (req, res) => {
 router.get('/:uid', async (req, res) => {
   try {
     const { uid } = req.params;
+    console.log('🔍 Fetching user with UID:', uid);
+    
     const user = await User.findOne({ uid });
     
     if (!user) {
+      console.log('⚠️ User not found:', uid);
       return res.status(404).json({ error: 'User not found' });
     }
     
+    console.log('✅ User fetched successfully:', user._id);
     res.json(user);
   } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Failed to fetch user' });
+    console.error('❌ Error fetching user:', error);
+    console.error('❌ Error stack:', error.stack);
+    res.status(500).json({ error: 'Failed to fetch user', details: error.message });
   }
 });
 

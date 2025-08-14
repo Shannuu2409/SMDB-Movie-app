@@ -20,10 +20,14 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToSignup }) => {
     setLoading(true);
 
     try {
+      console.log('🔍 Starting authentication process...');
+      
       if (isSignup) {
         await signup(email, password, displayName);
+        console.log('✅ Signup successful');
       } else {
         await signin(email, password);
+        console.log('✅ Signin successful');
       }
       
       // Clear form data
@@ -32,10 +36,11 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToSignup }) => {
       setDisplayName('');
       setError('');
       
+      console.log('🔍 Closing modal...');
       // Close modal
       onClose();
     } catch (error) {
-      console.error('Auth error:', error);
+      console.error('❌ Auth error:', error);
       // Handle Firebase auth errors more gracefully
       let errorMessage = 'Authentication failed. Please try again.';
       
@@ -49,6 +54,8 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToSignup }) => {
         errorMessage = 'Password should be at least 6 characters long.';
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'Please enter a valid email address.';
+      } else if (error.message && error.message.includes('Network Error')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
       } else if (error.message) {
         errorMessage = error.message;
       }
