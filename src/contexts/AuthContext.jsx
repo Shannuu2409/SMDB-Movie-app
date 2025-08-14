@@ -130,7 +130,15 @@ export const AuthProvider = ({ children }) => {
     const testBackend = async () => {
       try {
         console.log('🔍 Testing backend connection on app load...');
+        
+        // Try simple fetch first
+        console.log('🔍 Trying simple fetch test...');
+        await mongoService.simpleTest();
+        
+        // Then try axios
+        console.log('🔍 Trying axios test...');
         await mongoService.testConnection();
+        
         console.log('✅ Backend is reachable!');
       } catch (error) {
         console.error('❌ Backend is not reachable:', error);

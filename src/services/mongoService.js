@@ -19,6 +19,21 @@ console.log('🔍 Full environment variable value:', import.meta.env.VITE_MONGOD
 console.log('🔍 Current timestamp:', new Date().toISOString());
 
 const mongoService = {
+  // Simple test with fetch instead of axios
+  async simpleTest() {
+    try {
+      console.log('🔍 Simple fetch test to:', `${API_BASE_URL}/health`);
+      const response = await fetch(`${API_BASE_URL}/health`);
+      console.log('🔍 Fetch response status:', response.status);
+      const data = await response.json();
+      console.log('✅ Simple fetch successful:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ Simple fetch failed:', error);
+      throw error;
+    }
+  },
+
   // Test backend connectivity
   async testConnection() {
     try {
