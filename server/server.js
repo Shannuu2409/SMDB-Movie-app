@@ -17,14 +17,21 @@ app.use(express.json());
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/smdb';
 console.log('🔍 Attempting to connect to MongoDB...');
 console.log('🔍 MongoDB URI present:', !!process.env.MONGODB_URI);
+console.log('🔍 MongoDB URI starts with:', MONGODB_URI.substring(0, 20) + '...');
 
-mongoose.connect(MONGODB_URI)
+mongoose.connect(MONGODB_URI, {
+  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  socketTimeoutMS: 45000, // Close sockets after 45s
+  bufferCommands: false, // Disable mongoose buffering
+  bufferMaxEntries: 0 // Disable mongoose buffering
+})
   .then(() => {
     console.log('✅ Connected to MongoDB successfully');
   })
   .catch((error) => {
     console.error('❌ MongoDB connection error:', error);
     console.error('❌ Error details:', error.message);
+    console.error('❌ Error code:', error.code);
   });
 
 // Add connection event listeners

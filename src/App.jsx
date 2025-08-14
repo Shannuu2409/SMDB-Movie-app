@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import Index from "./Index";
-import { MoviesPage } from "./pages/MoviesPage";
-import { TVSeriesPage } from "./pages/TVSeriesPage";
-import { AnimePage } from "./pages/AnimePage";
+import MoviesPage from "./pages/MoviesPage";
+import TVSeriesPage from "./pages/TVSeriesPage";
+import AnimePage from "./pages/AnimePage";
 import { ProfilePage } from "./components/ProfilePage";
 import { AuthProvider } from "./contexts/AuthContext";
 import BackendTest from "./components/BackendTest";
