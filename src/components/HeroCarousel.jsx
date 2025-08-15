@@ -49,7 +49,7 @@ export const HeroCarousel = ({ movies = [], onShowDetails }) => {
           alt={currentMovie.title}
           className="w-full h-full object-cover transition-opacity duration-1000"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/95 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/30" />
       </div>
       
       {/* Navigation Arrows */}
